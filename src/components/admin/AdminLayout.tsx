@@ -13,17 +13,66 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { isAuthenticated } = useAdmin();
-  
-  // Simple test - just show if authenticated or not
+  const { isAuthenticated, login, logout, inquiries } = useAdmin();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (login(loginPassword)) {
+      setLoginError('');
+    } else {
+      setLoginError('Invalid password');
+    }
+  };
+
+  // Login Screen
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Admin Login Required</h1>
-          <p className="text-muted-foreground">Please login to access the admin panel.</p>
-          <p className="text-sm mt-4">Demo password: admin123</p>
-        </div>
+        <div className="grain-overlay" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">
+              <span className="text-gradient">GO</span>
+              <span className="text-foreground">DIGITAL</span>
+            </h1>
+            <p className="text-muted-foreground text-sm">Admin Dashboard</p>
+          </div>
+
+          <div className="glass-card rounded-xl p-6 md:p-8">
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm text-muted-foreground">Password</label>
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Enter admin password"
+                  className="w-full px-4 py-3 glass rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                />
+                {loginError && (
+                  <p className="text-sm text-destructive">{loginError}</p>
+                )}
+              </div>
+
+              <GalaxyButton type="submit" className="w-full" size="lg">
+                Login
+              </GalaxyButton>
+            </form>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            Demo password: admin123
+          </p>
+        </motion.div>
       </div>
     );
   }
